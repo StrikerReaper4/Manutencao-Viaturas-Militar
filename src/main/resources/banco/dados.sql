@@ -1,4 +1,4 @@
--- Dados de teste, so roda quando o banco eh criado pela primeira vez
+-- Dados de teste, so roda quando o banco é criado pela primeira vez
 -- senha de todos: 123456 (SHA-256)
 
 INSERT INTO TB_Modelo (nome) VALUES ('Marruá AM21');
