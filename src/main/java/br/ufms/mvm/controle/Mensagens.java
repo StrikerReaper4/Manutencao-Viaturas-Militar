@@ -31,6 +31,12 @@ public final class Mensagens {
     }
 
     public static String m05(String eb, int idManutencao) {
-        return "A viatura EB " + eb + " já possui a manutenção nº " + idManutencao + " em andamento.";
+        return "A viatura EB " + eb + " já possui a manutenção nº " + idManutencao + " em andamento. "
+                + "Deseja consultá-la?";
+    }
+
+    public static String m09(int km) {
+        return "Faltam " + km + " km para a próxima manutenção preventiva desta viatura. "
+                + "Deseja abrir a manutenção antecipadamente?";
     }
 }
