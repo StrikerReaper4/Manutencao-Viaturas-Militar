@@ -1,4 +1,4 @@
-package br.ufms.mvm.negocio;
+package br.ufms.mvm.modelo;
 
 // Filtro previsto numa manutencao preventiva (tabela TB_ItemManutencao_Filtro)
 public class ItemManutencao {

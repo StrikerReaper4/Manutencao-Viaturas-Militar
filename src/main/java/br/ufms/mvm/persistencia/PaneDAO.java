@@ -1,6 +1,6 @@
 package br.ufms.mvm.persistencia;
 
-import br.ufms.mvm.negocio.Pane;
+import br.ufms.mvm.modelo.Pane;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

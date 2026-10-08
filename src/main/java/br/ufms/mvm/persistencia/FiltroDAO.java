@@ -1,6 +1,6 @@
 package br.ufms.mvm.persistencia;
 
-import br.ufms.mvm.negocio.Filtros;
+import br.ufms.mvm.modelo.Filtros;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,6 +1,6 @@
 package br.ufms.mvm;
 
-import br.ufms.mvm.tela.TelaAbrirManutencao;
+import br.ufms.mvm.visao.TelaAbrirManutencao;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;

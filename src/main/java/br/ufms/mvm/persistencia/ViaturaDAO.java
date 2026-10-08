@@ -1,8 +1,8 @@
 package br.ufms.mvm.persistencia;
 
-import br.ufms.mvm.negocio.Modelo;
-import br.ufms.mvm.negocio.TipoViatura;
-import br.ufms.mvm.negocio.Viatura;
+import br.ufms.mvm.modelo.Modelo;
+import br.ufms.mvm.modelo.TipoViatura;
+import br.ufms.mvm.modelo.Viatura;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

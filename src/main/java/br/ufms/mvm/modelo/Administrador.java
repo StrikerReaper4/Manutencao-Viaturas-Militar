@@ -1,4 +1,4 @@
-package br.ufms.mvm.negocio;
+package br.ufms.mvm.modelo;
 
 // Eh o Operador dos requisitos (no banco fica tipoUsuario = OPERADOR)
 public class Administrador extends Usuario {

@@ -1,11 +1,11 @@
-package br.ufms.mvm.controle;
+package br.ufms.mvm.controladora;
 
-import br.ufms.mvm.negocio.Filtros;
-import br.ufms.mvm.negocio.ItemManutencao;
-import br.ufms.mvm.negocio.Manutencao;
-import br.ufms.mvm.negocio.Mecanico;
-import br.ufms.mvm.negocio.Pane;
-import br.ufms.mvm.negocio.Viatura;
+import br.ufms.mvm.modelo.Filtros;
+import br.ufms.mvm.modelo.ItemManutencao;
+import br.ufms.mvm.modelo.Manutencao;
+import br.ufms.mvm.modelo.Mecanico;
+import br.ufms.mvm.modelo.Pane;
+import br.ufms.mvm.modelo.Viatura;
 import br.ufms.mvm.persistencia.Conexao;
 import br.ufms.mvm.persistencia.FiltroDAO;
 import br.ufms.mvm.persistencia.ItemManutencaoDAO;
@@ -89,9 +89,10 @@ public class ControladoraAbrirManutencao {
             throw new IllegalArgumentException(Mensagens.M12);
         }
         boolean jaIncluido = mecanicosIncluidos.stream().anyMatch(x -> x.getIdUsuario() == idMecanico);
-        if (!jaIncluido) {
-            mecanicosIncluidos.add(me);
+        if (jaIncluido) {
+            throw new IllegalArgumentException(Mensagens.MECANICO_REPETIDO);
         }
+        mecanicosIncluidos.add(me);
     }
 
     public List<Mecanico> getMecanicosIncluidos() {

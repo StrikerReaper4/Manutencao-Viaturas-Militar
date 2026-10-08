@@ -18,9 +18,9 @@ e o Diagrama de Comunicação da operação `GravarManutencao`.
 
 ```
 src/main/java/br/ufms/mvm
-├── tela/          interface (TelaAbrirManutencao)
-├── controle/      controladora do caso de uso
-├── negocio/       classes do modelo (Viatura, Pane, Manutencao...)
+├── visao/         interface (TelaAbrirManutencao)
+├── controladora/  controladora do caso de uso
+├── modelo/        classes do modelo (Viatura, Pane, Manutencao...)
 └── persistencia/  DAOs e conexão com o SQLite
 src/main/resources/banco
 ├── schema.sql     tabelas (mapeamento objeto-relacional)
