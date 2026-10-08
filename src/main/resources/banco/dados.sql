@@ -23,6 +23,8 @@ INSERT INTO TB_Filtro (tipo, especificacao) VALUES ('Filtro de combustível', 'T
 INSERT INTO TB_Filtro (tipo, especificacao) VALUES ('Filtro de ar', 'Tecfil ARL 4151');
 INSERT INTO TB_Filtro (tipo, especificacao) VALUES ('Decantador', 'Racor R90P');
 INSERT INTO TB_Filtro (tipo, especificacao) VALUES ('Filtro de arla', 'Bosch F01C600194');
+INSERT INTO TB_Filtro (tipo, especificacao) VALUES ('Filtro de ar da cabine', 'Tecfil ARL 4040');
+INSERT INTO TB_Filtro (tipo, especificacao) VALUES ('Direção hidráulica', 'Harza F1200');
 
 INSERT INTO TB_Usuario (login, senha, nome, graduacao, tipoUsuario) VALUES ('silva', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Silva', 'Sgt', 'MECANICO');
 INSERT INTO TB_Usuario (login, senha, nome, graduacao, tipoUsuario) VALUES ('souza', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Souza', 'Cb', 'MECANICO');
