@@ -78,6 +78,20 @@ public class ManutencaoDAO {
         }
     }
 
+    // odometro da ultima preventiva da viatura (null se nunca teve)
+    public Integer buscarOdometroUltimaPreventiva(String eb) throws SQLException {
+        String sql = "SELECT odometroEntrada FROM TB_Manutencao WHERE EB = ? AND tipo = ? "
+                   + "ORDER BY dataInicio DESC LIMIT 1";
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, eb);
+            ps.setString(2, Manutencao.PREVENTIVA);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : null;
+            }
+        }
+    }
+
     // RN05: uma viatura nao pode ter duas manutencoes em andamento
     public Integer buscarEmAndamento(String eb) throws SQLException {
         String sql = "SELECT idManutencao FROM TB_Manutencao WHERE EB = ? AND situacao = ?";

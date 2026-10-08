@@ -31,3 +31,7 @@ INSERT INTO TB_Usuario (login, senha, nome, graduacao, tipoUsuario) VALUES ('sou
 INSERT INTO TB_Usuario (login, senha, nome, graduacao, tipoUsuario) VALUES ('pereira', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Pereira', 'Sd', 'MECANICO');
 INSERT INTO TB_Usuario (login, senha, nome, graduacao, tipoUsuario, ativo) VALUES ('lima', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Lima', 'Sd', 'MECANICO', 0);
 INSERT INTO TB_Usuario (login, senha, nome, graduacao, tipoUsuario) VALUES ('admin', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Oliveira', 'Ten', 'OPERADOR');
+
+-- preventiva antiga ja encerrada, serve pra testar a M09 (EB3456789014 faz a proxima com 15000 km)
+INSERT INTO TB_Manutencao (tipo, dataInicio, dataEncerramento, odometroEntrada, odometroSaida, situacao, situacaoFinal, EB)
+VALUES ('Preventiva', 1767225600000, 1767312000000, 10000, 10020, 'Encerrada', 'Disponível', 'EB3456789014');

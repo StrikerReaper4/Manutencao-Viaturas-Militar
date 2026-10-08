@@ -59,6 +59,22 @@ public class ControladoraAbrirManutencao {
         return manutencaoDAO.buscarEmAndamento(eb);
     }
 
+    // FAV1.1: quantos km faltam pra proxima preventiva (<= 0 quer dizer que ja venceu)
+    public int calcularKmParaPreventiva(String eb, Integer odometro) throws SQLException {
+        Viatura v = viaturaDAO.buscarPorEB(eb);
+        if (v == null) {
+            return 0;
+        }
+        int odometroReferencia = odometro != null ? odometro : v.getOdometro();
+        Integer ultima = manutencaoDAO.buscarOdometroUltimaPreventiva(eb);
+        int base = ultima != null ? ultima : 0;
+        return base + v.getKmManutencaoPreventiva() - odometroReferencia;
+    }
+
+    public Pane buscarPane(int paneID) throws SQLException {
+        return paneDAO.buscarPorID(paneID);
+    }
+
     public List<Filtros> listarFiltros(String eb) throws SQLException {
         return filtroDAO.listarPorViatura(eb);
     }

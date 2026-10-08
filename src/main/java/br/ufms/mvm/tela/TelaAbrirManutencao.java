@@ -61,6 +61,11 @@ public class TelaAbrirManutencao extends JFrame {
     private final JPanel painelListaFiltros = new JPanel();
     private final List<JCheckBox> checkFiltros = new ArrayList<>();
     private final List<Filtros> filtrosDisponiveis = new ArrayList<>();
+    private final JPanel painelPane = new JPanel(new GridBagLayout());
+    private final JLabel lblPaneDescricao = new JLabel("-");
+    private final JLabel lblPanePrioridade = new JLabel("-");
+    private final JLabel lblPaneMissao = new JLabel("-");
+    private final JLabel lblPaneDataLimite = new JLabel("-");
 
     // evita disparar os listeners enquanto os combos sao recarregados
     private boolean carregando;
@@ -114,6 +119,18 @@ public class TelaAbrirManutencao extends JFrame {
         painelFiltros.add(painelListaFiltros, BorderLayout.CENTER);
         painelFiltros.setVisible(false);
 
+        // Dados da pane (so na corretiva)
+        painelPane.setBorder(BorderFactory.createTitledBorder("Dados da pane"));
+        GridBagConstraints cp = new GridBagConstraints();
+        cp.insets = new Insets(2, 4, 2, 4);
+        cp.anchor = GridBagConstraints.WEST;
+        cp.fill = GridBagConstraints.HORIZONTAL;
+        adicionarLinha(painelPane, cp, 0, "Descrição:", lblPaneDescricao);
+        adicionarLinha(painelPane, cp, 1, "Prioridade:", lblPanePrioridade);
+        adicionarLinha(painelPane, cp, 2, "Missão:", lblPaneMissao);
+        adicionarLinha(painelPane, cp, 3, "Data limite:", lblPaneDataLimite);
+        painelPane.setVisible(false);
+
         JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnAbrir = new JButton("Abrir manutenção");
         JButton btnCancelar = new JButton("Cancelar");
@@ -122,6 +139,7 @@ public class TelaAbrirManutencao extends JFrame {
 
         principal.add(ident);
         principal.add(mec);
+        principal.add(painelPane);
         principal.add(painelFiltros);
         principal.add(botoes);
         setContentPane(principal);
@@ -201,7 +219,14 @@ public class TelaAbrirManutencao extends JFrame {
             // FA02
             Integer emAndamento = controladora.buscarManutencaoEmAndamento(eb);
             if (emAndamento != null) {
-                exibirMensagem(Mensagens.m05(eb, emAndamento));
+                // A consulta de manutencao eh de outra iteracao, por enquanto "Consultar" so encerra
+                Object[] opcoes = {"Consultar", "Voltar"};
+                int resp = JOptionPane.showOptionDialog(this, Mensagens.m05(eb, emAndamento), "MVM",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[1]);
+                if (resp == JOptionPane.YES_OPTION) {
+                    controladora.cancelarAbertura();
+                    System.exit(0);
+                }
                 carregando = true;
                 cbViatura.setSelectedIndex(-1);
                 cbPane.removeAllItems();
@@ -228,8 +253,9 @@ public class TelaAbrirManutencao extends JFrame {
                 cbTipo.setEnabled(true);
             }
 
-            if (Manutencao.PREVENTIVA.equals(tipoSelecionado)) {
-                carregarFiltros();
+            // se o tipo ja estava escolhido, refaz a variante pra nova viatura
+            if (tipoSelecionado != null && cbTipo.isEnabled()) {
+                selecionarTipoManutencao(tipoSelecionado);
             }
         } catch (SQLException e) {
             carregando = false;
@@ -239,6 +265,36 @@ public class TelaAbrirManutencao extends JFrame {
 
     public void selecionarPane(Integer paneID) {
         paneSelecionada = paneID;
+        if (Manutencao.CORRETIVA.equals(tipoSelecionado)) {
+            exibirDadosPane();
+        }
+    }
+
+    // Variante 2: mostra os dados da pane escolhida
+    private void exibirDadosPane() {
+        Pane p = null;
+        try {
+            if (paneSelecionada != null) {
+                p = controladora.buscarPane(paneSelecionada);
+            }
+        } catch (SQLException e) {
+            exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
+        }
+
+        if (p == null) {
+            lblPaneDescricao.setText("-");
+            lblPanePrioridade.setText("-");
+            lblPaneMissao.setText("-");
+            lblPaneDataLimite.setText("-");
+        } else {
+            lblPaneDescricao.setText(p.getDescricao());
+            lblPanePrioridade.setText(String.valueOf(p.getPrioridade()));
+            lblPaneMissao.setText(p.getMissao() != null ? p.getMissao() : "-");
+            lblPaneDataLimite.setText(p.getDataLimite() != null
+                    ? new SimpleDateFormat("dd/MM/yyyy").format(new Date(p.getDataLimite())) : "-");
+        }
+        painelPane.setVisible(true);
+        pack();
     }
 
     private void lerOdometro() {
@@ -277,14 +333,45 @@ public class TelaAbrirManutencao extends JFrame {
 
     public void selecionarTipoManutencao(String tipo) {
         tipoSelecionado = tipo;
+        painelFiltros.setVisible(false);
+        painelPane.setVisible(false);
+        filtrosSelecionados = new int[0];
+
         if (Manutencao.PREVENTIVA.equals(tipo)) {
+            // Variante 1 (passando antes pelo FAV1.1)
+            if (!confirmarPreventivaAntecipada()) {
+                tipoSelecionado = null;
+                carregando = true;
+                cbTipo.setSelectedIndex(-1);
+                carregando = false;
+                pack();
+                return;
+            }
             carregarFiltros();
             painelFiltros.setVisible(true);
-        } else {
-            painelFiltros.setVisible(false);
-            filtrosSelecionados = new int[0];
+        } else if (Manutencao.CORRETIVA.equals(tipo)) {
+            // Variante 2
+            exibirDadosPane();
         }
         pack();
+    }
+
+    // FAV1.1: se a viatura ainda nao chegou na km da preventiva, pergunta (M09)
+    private boolean confirmarPreventivaAntecipada() {
+        if (ebSelecionado == null) {
+            return true;
+        }
+        try {
+            int faltam = controladora.calcularKmParaPreventiva(ebSelecionado, odometro);
+            if (faltam > 0) {
+                int resp = JOptionPane.showConfirmDialog(this, Mensagens.m09(faltam), "MVM",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                return resp == JOptionPane.YES_OPTION;
+            }
+        } catch (SQLException e) {
+            exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
+        }
+        return true;
     }
 
     // Variante 1: o sistema ja traz os filtros marcados
