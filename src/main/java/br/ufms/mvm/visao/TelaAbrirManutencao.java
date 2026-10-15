@@ -1,12 +1,12 @@
-package br.ufms.mvm.tela;
+package br.ufms.mvm.visao;
 
-import br.ufms.mvm.controle.ControladoraAbrirManutencao;
-import br.ufms.mvm.controle.Mensagens;
-import br.ufms.mvm.negocio.Filtros;
-import br.ufms.mvm.negocio.Manutencao;
-import br.ufms.mvm.negocio.Mecanico;
-import br.ufms.mvm.negocio.Pane;
-import br.ufms.mvm.negocio.Viatura;
+import br.ufms.mvm.controladora.ControladoraAbrirManutencao;
+import br.ufms.mvm.controladora.Mensagens;
+import br.ufms.mvm.modelo.Filtros;
+import br.ufms.mvm.modelo.Manutencao;
+import br.ufms.mvm.modelo.Mecanico;
+import br.ufms.mvm.modelo.Pane;
+import br.ufms.mvm.modelo.Viatura;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;

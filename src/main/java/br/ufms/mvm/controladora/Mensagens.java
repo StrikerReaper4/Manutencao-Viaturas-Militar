@@ -1,4 +1,4 @@
-package br.ufms.mvm.controle;
+package br.ufms.mvm.controladora;
 
 // Mensagens M01 a M12 do caso de uso Abrir Manutencao
 public final class Mensagens {
@@ -13,6 +13,8 @@ public final class Mensagens {
                                    + "Tente novamente.";
     public static final String M12 = "A viatura, a pane ou o mecânico selecionado encontra-se inativo e não pode "
                                    + "ser utilizado na abertura da manutenção.";
+
+    public static final String MECANICO_REPETIDO = "Esse mecânico já foi adicionado!";
 
     private Mensagens() {
     }

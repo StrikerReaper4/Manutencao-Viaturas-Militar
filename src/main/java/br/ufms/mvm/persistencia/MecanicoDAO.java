@@ -1,6 +1,6 @@
 package br.ufms.mvm.persistencia;
 
-import br.ufms.mvm.negocio.Mecanico;
+import br.ufms.mvm.modelo.Mecanico;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

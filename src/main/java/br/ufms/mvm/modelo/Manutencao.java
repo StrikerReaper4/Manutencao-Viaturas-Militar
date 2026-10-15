@@ -1,4 +1,4 @@
-package br.ufms.mvm.negocio;
+package br.ufms.mvm.modelo;
 
 import java.util.ArrayList;
 import java.util.List;

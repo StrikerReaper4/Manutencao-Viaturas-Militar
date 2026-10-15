@@ -1,6 +1,6 @@
 package br.ufms.mvm.persistencia;
 
-import br.ufms.mvm.negocio.ItemManutencao;
+import br.ufms.mvm.modelo.ItemManutencao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
