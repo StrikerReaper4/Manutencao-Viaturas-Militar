@@ -75,3 +75,29 @@ CREATE TABLE IF NOT EXISTS TB_Manutencao_Mecanico (
     idUsuario    INTEGER NOT NULL REFERENCES TB_Usuario(idUsuario),
     PRIMARY KEY (idManutencao, idUsuario)
 );
+
+-- Tabelas da iteracao 2 (Encerrar manutencao)
+CREATE TABLE IF NOT EXISTS TB_Item (
+    idItem            INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome              TEXT NOT NULL,
+    unidadeMedida     TEXT,
+    quantidadeEstoque INTEGER NOT NULL DEFAULT 0,
+    ativo             INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS TB_ItemManutencao_Material (
+    idItemMaterial INTEGER NOT NULL,
+    idManutencao   INTEGER NOT NULL REFERENCES TB_Manutencao(idManutencao),
+    quantidade     INTEGER NOT NULL,
+    faltante       INTEGER NOT NULL DEFAULT 0,
+    idItem         INTEGER NOT NULL REFERENCES TB_Item(idItem),
+    PRIMARY KEY (idItemMaterial, idManutencao)
+);
+
+CREATE TABLE IF NOT EXISTS TB_ItemManutencao_Servico (
+    idItemServico INTEGER NOT NULL,
+    idManutencao  INTEGER NOT NULL REFERENCES TB_Manutencao(idManutencao),
+    descricao     TEXT NOT NULL,
+    faltante      INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (idItemServico, idManutencao)
+);

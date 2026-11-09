@@ -39,12 +39,12 @@ public class ControladoraAbrirManutencao {
         return viaturaDAO.listarViatura();
     }
 
-    public List<Pane> listarPane(String eb) throws SQLException {
+    public List<Pane> listarPanes(String eb) throws SQLException {
         return paneDAO.listarNaoAtendidas(eb);
     }
 
     // RN03
-    public boolean validarOdometro(int odometro, String eb) throws SQLException {
+    public boolean validarOdometro(String eb, int odometro) throws SQLException {
         Viatura v = viaturaDAO.buscarPorEB(eb);
         return v != null && odometro >= v.getOdometro();
     }

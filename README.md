@@ -14,17 +14,24 @@ Trabalho de Análise e Projeto Orientado a Objetos - UFMS.
 Implementação do caso de uso **Abrir manutenção**, seguindo o Diagrama de Classes de Projeto
 e o Diagrama de Comunicação da operação `GravarManutencao`.
 
+## Iteração 2 - Encerrar Manutenção
+
+Implementação do caso de uso **Encerrar manutenção**, incluindo o registro de manutenção executada
+sem abertura prévia, seguindo o Diagrama de Classes consolidado e o Diagrama de Comunicação da
+operação `GravarEncerramento`.
+
 ## Estrutura
 
 ```
 src/main/java/br/ufms/mvm
-├── visao/         interface (TelaAbrirManutencao)
-├── controladora/  controladora do caso de uso
+├── visao/         interface (telas de Abrir e Encerrar manutenção)
+├── controladora/  uma controladora por caso de uso
 ├── modelo/        classes do modelo (Viatura, Pane, Manutencao...)
 └── persistencia/  DAOs e conexão com o SQLite
 src/main/resources/banco
 ├── schema.sql     tabelas (mapeamento objeto-relacional)
-└── dados.sql      dados de teste
+├── dados.sql      dados de teste
+└── dados_iteracao2.sql  dados de teste do encerramento
 ```
 
 ## Como rodar

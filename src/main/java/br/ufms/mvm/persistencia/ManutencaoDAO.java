@@ -1,5 +1,6 @@
 package br.ufms.mvm.persistencia;
 
+import br.ufms.mvm.modelo.ItemManutencao;
 import br.ufms.mvm.modelo.Manutencao;
 import br.ufms.mvm.modelo.Mecanico;
 
@@ -8,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManutencaoDAO {
 
@@ -61,31 +64,74 @@ public class ManutencaoDAO {
         }
     }
 
-    // retorna so os dados basicos, sem viatura/pane carregados
+    // traz a manutencao com os itens de filtro e os mecanicos; viatura e pane vem so pela chave
     public Manutencao buscarPorID(int id) throws SQLException {
         Connection con = Conexao.getConexao();
+        Manutencao m;
         try (PreparedStatement ps = con.prepareStatement("SELECT * FROM TB_Manutencao WHERE idManutencao = ?")) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
                     return null;
                 }
-                Manutencao m = new Manutencao(rs.getString("tipo"), rs.getLong("dataInicio"), rs.getInt("odometroEntrada"));
+                m = new Manutencao(rs.getString("tipo"), rs.getLong("dataInicio"), rs.getInt("odometroEntrada"));
                 m.setIdManutencao(rs.getInt("idManutencao"));
                 m.setSituacao(rs.getString("situacao"));
-                return m;
+                int idPane = rs.getInt("idPane");
+                m.setChaves(rs.getString("EB"), rs.wasNull() ? null : idPane);
             }
         }
+
+        for (ItemManutencao imf : new ItemManutencaoDAO().listarPorManutencao(id)) {
+            m.carregarItem(imf);
+        }
+        MecanicoDAO mecanicoDAO = new MecanicoDAO();
+        for (int idUsuario : listarInteiros("SELECT idUsuario FROM TB_Manutencao_Mecanico WHERE idManutencao = ?", id)) {
+            m.adicionarMecanico(mecanicoDAO.buscarPorID(idUsuario));
+        }
+        return m;
     }
 
-    // odometro da ultima preventiva da viatura (null se nunca teve)
+    public List<Manutencao> listarEmAndamento() throws SQLException {
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT idManutencao FROM TB_Manutencao WHERE situacao = ? ORDER BY idManutencao";
+        try (PreparedStatement ps = Conexao.getConexao().prepareStatement(sql)) {
+            ps.setString(1, Manutencao.EM_ANDAMENTO);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt(1));
+                }
+            }
+        }
+        List<Manutencao> lista = new ArrayList<>();
+        for (int id : ids) {
+            lista.add(buscarPorID(id));
+        }
+        return lista;
+    }
+
+    private List<Integer> listarInteiros(String sql, int parametro) throws SQLException {
+        List<Integer> valores = new ArrayList<>();
+        try (PreparedStatement ps = Conexao.getConexao().prepareStatement(sql)) {
+            ps.setInt(1, parametro);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    valores.add(rs.getInt(1));
+                }
+            }
+        }
+        return valores;
+    }
+
+    // odometro de saida da ultima preventiva encerrada (null se nunca teve)
     public Integer buscarOdometroUltimaPreventiva(String eb) throws SQLException {
-        String sql = "SELECT odometroEntrada FROM TB_Manutencao WHERE EB = ? AND tipo = ? "
-                   + "ORDER BY dataInicio DESC LIMIT 1";
+        String sql = "SELECT odometroSaida FROM TB_Manutencao WHERE EB = ? AND tipo = ? AND situacao = ? "
+                   + "ORDER BY dataEncerramento DESC LIMIT 1";
         Connection con = Conexao.getConexao();
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, eb);
             ps.setString(2, Manutencao.PREVENTIVA);
+            ps.setString(3, Manutencao.ENCERRADA);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : null;
             }

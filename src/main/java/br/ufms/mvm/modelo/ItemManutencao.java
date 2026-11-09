@@ -18,6 +18,12 @@ public class ItemManutencao {
         this.especificacao = f.getEspecificacao();
     }
 
+    // 1.9.1 do diagrama de comunicacao do encerramento
+    public void registrarSubstituicao(String especificacao, Double volumeOleo) {
+        this.especificacao = especificacao;
+        this.volumeOleo = volumeOleo;
+    }
+
     public int getIdItem() {
         return idItem;
     }

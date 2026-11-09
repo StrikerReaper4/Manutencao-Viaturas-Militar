@@ -4,6 +4,7 @@ public class Pane {
 
     public static final String REGISTRADA = "Registrada";
     public static final String EM_ATENDIMENTO = "Em atendimento";
+    public static final String ATENDIDA = "Atendida";
 
     private int idPane;
     private String descricao;
