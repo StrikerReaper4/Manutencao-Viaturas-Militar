@@ -14,7 +14,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -22,7 +21,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 
 // Visual das telas, seguindo os mockups
 public final class Estilo {
@@ -205,14 +203,14 @@ public final class Estilo {
         return p;
     }
 
-    // ajusta ao conteudo sem passar do tamanho da tela
+    // as telas dos casos de uso ficam sempre em tela cheia
     public static void ajustarJanela(JFrame janela) {
-        janela.pack();
-        Dimension tela = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension d = janela.getSize();
-        if (d.height > tela.height - 80) {
-            janela.setSize(d.width + 20, tela.height - 80);
+        if ((janela.getExtendedState() & JFrame.MAXIMIZED_BOTH) != JFrame.MAXIMIZED_BOTH) {
+            janela.pack();
+            janela.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
+        janela.revalidate();
+        janela.repaint();
     }
 
     // janela de mensagem igual ao mockup; devolve o indice do botao clicado ou -1 se fechou
