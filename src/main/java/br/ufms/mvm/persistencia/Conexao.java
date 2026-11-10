@@ -31,14 +31,22 @@ public class Conexao {
     }
 
     private static void criarBancoSePreciso() throws SQLException {
-        boolean novo;
-        DatabaseMetaData meta = conexao.getMetaData();
-        try (ResultSet rs = meta.getTables(null, null, "TB_Viatura", null)) {
-            novo = !rs.next();
-        }
+        boolean novo = !tabelaExiste("TB_Viatura");
+        boolean semIteracao2 = !tabelaExiste("TB_Item");
         executarScript("/banco/schema.sql");
         if (novo) {
             executarScript("/banco/dados.sql");
+        }
+        // assim quem ja tinha o banco da iteracao 1 recebe os dados novos
+        if (semIteracao2) {
+            executarScript("/banco/dados_iteracao2.sql");
+        }
+    }
+
+    private static boolean tabelaExiste(String nome) throws SQLException {
+        DatabaseMetaData meta = conexao.getMetaData();
+        try (ResultSet rs = meta.getTables(null, null, nome, null)) {
+            return rs.next();
         }
     }
 

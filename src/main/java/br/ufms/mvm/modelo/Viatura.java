@@ -31,6 +31,10 @@ public class Viatura {
         return odometroAtual;
     }
 
+    public void setOdometro(int odometro) {
+        this.odometroAtual = odometro;
+    }
+
     public void setSituacao(String situacao) {
         this.situacao = situacao;
     }

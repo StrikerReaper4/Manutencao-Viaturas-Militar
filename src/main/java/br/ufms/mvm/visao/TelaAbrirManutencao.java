@@ -8,26 +8,16 @@ import br.ufms.mvm.modelo.Mecanico;
 import br.ufms.mvm.modelo.Pane;
 import br.ufms.mvm.modelo.Viatura;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.GridLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.sql.SQLException;
@@ -38,6 +28,7 @@ import java.util.List;
 
 public class TelaAbrirManutencao extends JFrame {
 
+    private static final String TITULO = "Abrir manutenção";
     private static final String ABRIR = "Abrir";
     private static final String CANCELAR = "Cancelar";
 
@@ -50,18 +41,18 @@ public class TelaAbrirManutencao extends JFrame {
     private String tipoSelecionado;
     private int[] filtrosSelecionados = new int[0];
 
-    private final JLabel lblData = new JLabel();
+    private final JTextField txtData = new JTextField();
     private final JComboBox<Viatura> cbViatura = new JComboBox<>();
     private final JComboBox<Pane> cbPane = new JComboBox<>();
     private final JTextField txtOdometro = new JTextField(10);
     private final JComboBox<String> cbTipo = new JComboBox<>(new String[]{Manutencao.PREVENTIVA, Manutencao.CORRETIVA});
     private final JComboBox<Mecanico> cbMecanico = new JComboBox<>();
-    private final DefaultListModel<Mecanico> modeloResponsaveis = new DefaultListModel<>();
-    private final JPanel painelFiltros = new JPanel();
-    private final JPanel painelListaFiltros = new JPanel();
+    private final JPanel etiquetasResponsaveis = Estilo.areaEtiquetas();
+    private final JPanel painelFiltros = Estilo.secao("Filtros a substituir");
+    private final JPanel painelListaFiltros = new JPanel(new GridLayout(0, 3, 12, 4));
     private final List<JCheckBox> checkFiltros = new ArrayList<>();
     private final List<Filtros> filtrosDisponiveis = new ArrayList<>();
-    private final JPanel painelPane = new JPanel(new GridBagLayout());
+    private final JPanel painelPane = Estilo.secao("Dados da pane");
     private final JLabel lblPaneDescricao = new JLabel("-");
     private final JLabel lblPanePrioridade = new JLabel("-");
     private final JLabel lblPaneMissao = new JLabel("-");
@@ -75,74 +66,59 @@ public class TelaAbrirManutencao extends JFrame {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         montarTela();
         abrirManutencao();
-        pack();
+        Estilo.ajustarJanela(this);
         setLocationRelativeTo(null);
     }
 
     private void montarTela() {
-        JPanel principal = new JPanel();
-        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel corpo = Estilo.corpo();
 
         // Identificacao da manutencao
-        JPanel ident = new JPanel(new GridBagLayout());
-        ident.setBorder(BorderFactory.createTitledBorder("Identificação da manutenção"));
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(4, 4, 4, 4);
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-
-        adicionarLinha(ident, c, 0, "Data:", lblData);
-        adicionarLinha(ident, c, 1, "Viatura (EB):", cbViatura);
-        adicionarLinha(ident, c, 2, "Pane a atender:", cbPane);
-        adicionarLinha(ident, c, 3, "Odômetro de entrada:", txtOdometro);
-        adicionarLinha(ident, c, 4, "Tipo de manutenção:", cbTipo);
-        cbPane.setPreferredSize(new Dimension(380, cbPane.getPreferredSize().height));
+        JPanel ident = Estilo.secao("Identificação da manutenção");
+        txtData.setEditable(false);
+        Estilo.empilhar(ident, Estilo.linha(
+                Estilo.campo("EB da viatura", true, cbViatura),
+                Estilo.campo("Odômetro de entrada", true, txtOdometro),
+                Estilo.campo("Data de abertura", true, txtData),
+                Estilo.campo("Tipo de manutenção", true, cbTipo)));
+        Estilo.empilhar(ident, Estilo.campo("Pane a ser atendida", false, cbPane));
+        Estilo.empilhar(corpo, ident);
 
         // Mecanicos responsaveis
-        JPanel mec = new JPanel(new BorderLayout(5, 5));
-        mec.setBorder(BorderFactory.createTitledBorder("Mecânicos responsáveis"));
-        JPanel linhaMec = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton btnAdicionar = new JButton("Adicionar");
-        linhaMec.add(cbMecanico);
-        linhaMec.add(btnAdicionar);
-        JList<Mecanico> listaResponsaveis = new JList<>(modeloResponsaveis);
-        JScrollPane scrollMec = new JScrollPane(listaResponsaveis);
-        scrollMec.setPreferredSize(new Dimension(380, 80));
-        mec.add(linhaMec, BorderLayout.NORTH);
-        mec.add(scrollMec, BorderLayout.CENTER);
-
-        // Filtros a substituir (so na preventiva)
-        painelFiltros.setLayout(new BorderLayout());
-        painelFiltros.setBorder(BorderFactory.createTitledBorder("Filtros a substituir"));
-        painelListaFiltros.setLayout(new BoxLayout(painelListaFiltros, BoxLayout.Y_AXIS));
-        painelFiltros.add(painelListaFiltros, BorderLayout.CENTER);
-        painelFiltros.setVisible(false);
+        JPanel mec = Estilo.secao("Mecânicos responsáveis");
+        JButton btnAdicionar = Estilo.botaoSecundario("Adicionar");
+        JPanel lateral = new JPanel(new BorderLayout());
+        lateral.setOpaque(false);
+        lateral.add(btnAdicionar, BorderLayout.SOUTH);
+        Estilo.empilhar(mec, Estilo.linhaComLateral(Estilo.campo("Selecionar mecânico", true, cbMecanico), lateral));
+        Estilo.empilhar(mec, etiquetasResponsaveis);
+        Estilo.empilhar(corpo, mec);
 
         // Dados da pane (so na corretiva)
-        painelPane.setBorder(BorderFactory.createTitledBorder("Dados da pane"));
-        GridBagConstraints cp = new GridBagConstraints();
-        cp.insets = new Insets(2, 4, 2, 4);
-        cp.anchor = GridBagConstraints.WEST;
-        cp.fill = GridBagConstraints.HORIZONTAL;
-        adicionarLinha(painelPane, cp, 0, "Descrição:", lblPaneDescricao);
-        adicionarLinha(painelPane, cp, 1, "Prioridade:", lblPanePrioridade);
-        adicionarLinha(painelPane, cp, 2, "Missão:", lblPaneMissao);
-        adicionarLinha(painelPane, cp, 3, "Data limite:", lblPaneDataLimite);
+        Estilo.empilhar(painelPane, Estilo.linha(
+                Estilo.campo("Descrição", false, lblPaneDescricao),
+                Estilo.campo("Prioridade", false, lblPanePrioridade),
+                Estilo.campo("Missão", false, lblPaneMissao),
+                Estilo.campo("Data limite", false, lblPaneDataLimite)));
         painelPane.setVisible(false);
+        Estilo.empilhar(corpo, painelPane);
 
-        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnAbrir = new JButton("Abrir manutenção");
-        JButton btnCancelar = new JButton("Cancelar");
-        botoes.add(btnAbrir);
-        botoes.add(btnCancelar);
+        // Filtros a substituir (so na preventiva)
+        painelListaFiltros.setOpaque(false);
+        Estilo.empilhar(painelFiltros, Estilo.aviso("Manutenção preventiva: o sistema indicou automaticamente os filtros que necessitam ser substituídos."));
+        Estilo.empilhar(painelFiltros, painelListaFiltros);
+        painelFiltros.setVisible(false);
+        Estilo.empilhar(corpo, painelFiltros);
 
-        principal.add(ident);
-        principal.add(mec);
-        principal.add(painelPane);
-        principal.add(painelFiltros);
-        principal.add(botoes);
-        setContentPane(principal);
+        JPanel raiz = new JPanel(new BorderLayout());
+        raiz.add(Estilo.cabecalho("Abrir Manutenção",
+                "Registro do início do serviço na oficina. Os campos assinalados com (*) são de preenchimento obrigatório."),
+                BorderLayout.NORTH);
+        raiz.add(corpo, BorderLayout.CENTER);
+        JButton btnAbrir = Estilo.botaoPrimario("Abrir manutenção");
+        JButton btnCancelar = Estilo.botaoSecundario("Cancelar");
+        raiz.add(Estilo.rodape(btnCancelar, btnAbrir), BorderLayout.SOUTH);
+        setContentPane(raiz);
 
         // eventos
         cbViatura.addActionListener(e -> {
@@ -177,21 +153,11 @@ public class TelaAbrirManutencao extends JFrame {
         btnCancelar.addActionListener(e -> selecionarOpcao(CANCELAR));
     }
 
-    private void adicionarLinha(JPanel painel, GridBagConstraints c, int linha, String rotulo, java.awt.Component campo) {
-        c.gridx = 0;
-        c.gridy = linha;
-        c.weightx = 0;
-        painel.add(new JLabel(rotulo), c);
-        c.gridx = 1;
-        c.weightx = 1;
-        painel.add(campo, c);
-    }
-
     // passos 1 a 3 do DSS: data atual e listas iniciais
     private void abrirManutencao() {
         try {
             dataAtual = controladora.passarData();
-            lblData.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date(dataAtual)));
+            txtData.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date(dataAtual)));
 
             carregando = true;
             cbViatura.removeAllItems();
@@ -220,10 +186,8 @@ public class TelaAbrirManutencao extends JFrame {
             Integer emAndamento = controladora.buscarManutencaoEmAndamento(eb);
             if (emAndamento != null) {
                 // A consulta de manutencao eh de outra iteracao, por enquanto "Consultar" so encerra
-                Object[] opcoes = {"Consultar", "Voltar"};
-                int resp = JOptionPane.showOptionDialog(this, Mensagens.m05(eb, emAndamento), "MVM",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[1]);
-                if (resp == JOptionPane.YES_OPTION) {
+                int resp = Estilo.dialogo(this, Estilo.DOURADO, TITULO, Mensagens.m05(eb, emAndamento), "Voltar", "Consultar");
+                if (resp == 1) {
                     controladora.cancelarAbertura();
                     System.exit(0);
                 }
@@ -235,7 +199,7 @@ public class TelaAbrirManutencao extends JFrame {
                 return;
             }
 
-            List<Pane> panes = controladora.listarPane(eb);
+            List<Pane> panes = controladora.listarPanes(eb);
             carregando = true;
             cbPane.removeAllItems();
             for (Pane p : panes) {
@@ -246,7 +210,7 @@ public class TelaAbrirManutencao extends JFrame {
 
             // FA03: sem pane, so deixa preventiva
             if (panes.isEmpty()) {
-                exibirMensagem(Mensagens.M06);
+                Estilo.dialogo(this, Estilo.AZUL, TITULO, Mensagens.M06, "OK");
                 cbTipo.setSelectedItem(Manutencao.PREVENTIVA);
                 cbTipo.setEnabled(false);
             } else {
@@ -294,7 +258,7 @@ public class TelaAbrirManutencao extends JFrame {
                     ? new SimpleDateFormat("dd/MM/yyyy").format(new Date(p.getDataLimite())) : "-");
         }
         painelPane.setVisible(true);
-        pack();
+        Estilo.ajustarJanela(this);
     }
 
     private void lerOdometro() {
@@ -319,7 +283,7 @@ public class TelaAbrirManutencao extends JFrame {
         }
         try {
             // FA05
-            if (!controladora.validarOdometro(valor, ebSelecionado)) {
+            if (!controladora.validarOdometro(ebSelecionado, valor)) {
                 int atual = controladora.buscarOdometroAtual(ebSelecionado);
                 exibirMensagem(Mensagens.m03(valor, atual));
                 odometro = null;
@@ -344,7 +308,7 @@ public class TelaAbrirManutencao extends JFrame {
                 carregando = true;
                 cbTipo.setSelectedIndex(-1);
                 carregando = false;
-                pack();
+                Estilo.ajustarJanela(this);
                 return;
             }
             carregarFiltros();
@@ -353,7 +317,7 @@ public class TelaAbrirManutencao extends JFrame {
             // Variante 2
             exibirDadosPane();
         }
-        pack();
+        Estilo.ajustarJanela(this);
     }
 
     // FAV1.1: se a viatura ainda nao chegou na km da preventiva, pergunta (M09)
@@ -364,9 +328,7 @@ public class TelaAbrirManutencao extends JFrame {
         try {
             int faltam = controladora.calcularKmParaPreventiva(ebSelecionado, odometro);
             if (faltam > 0) {
-                int resp = JOptionPane.showConfirmDialog(this, Mensagens.m09(faltam), "MVM",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                return resp == JOptionPane.YES_OPTION;
+                return Estilo.perguntar(this, TITULO, Mensagens.m09(faltam));
             }
         } catch (SQLException e) {
             exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
@@ -386,13 +348,14 @@ public class TelaAbrirManutencao extends JFrame {
             checkFiltros.clear();
             for (Filtros f : filtrosDisponiveis) {
                 JCheckBox cb = new JCheckBox(f.toString(), true);
+                cb.setOpaque(false);
                 cb.addActionListener(e -> selecionarFiltros(filtrosMarcados()));
                 checkFiltros.add(cb);
                 painelListaFiltros.add(cb);
             }
             selecionarFiltros(filtrosMarcados());
             painelListaFiltros.revalidate();
-            pack();
+            Estilo.ajustarJanela(this);
         } catch (SQLException e) {
             exibirMensagem("Erro ao acessar o banco de dados: " + e.getMessage());
         }
@@ -415,10 +378,11 @@ public class TelaAbrirManutencao extends JFrame {
     public void adicionarMecanico(int idMecanico) {
         try {
             controladora.incluirMecanico(idMecanico);
-            modeloResponsaveis.clear();
+            etiquetasResponsaveis.removeAll();
             for (Mecanico me : controladora.getMecanicosIncluidos()) {
-                modeloResponsaveis.addElement(me);
+                Estilo.adicionarEtiqueta(etiquetasResponsaveis, me.toString());
             }
+            Estilo.ajustarJanela(this);
         } catch (IllegalArgumentException e) {
             exibirMensagem(e.getMessage());
         } catch (SQLException e) {
@@ -431,8 +395,7 @@ public class TelaAbrirManutencao extends JFrame {
             confirmarAbertura();
         } else if (CANCELAR.equals(opcao)) {
             // Variante 4
-            int resp = JOptionPane.showConfirmDialog(this, Mensagens.M10, "Cancelar", JOptionPane.YES_NO_OPTION);
-            if (resp == JOptionPane.YES_OPTION) {
+            if (Estilo.perguntar(this, TITULO, Mensagens.M10)) {
                 controladora.cancelarAbertura();
                 dispose();
             }
@@ -458,7 +421,7 @@ public class TelaAbrirManutencao extends JFrame {
         try {
             int id = controladora.gravarManutencao(ebSelecionado, paneSelecionada, odometro,
                     tipoSelecionado, dataAtual, filtrosSelecionados);
-            exibirMensagem(Mensagens.m01(id, ebSelecionado));
+            Estilo.dialogo(this, Estilo.VERDE, TITULO, Mensagens.m01(id, ebSelecionado), "OK");
             dispose();
         } catch (IllegalArgumentException e) {
             exibirMensagem(e.getMessage());
@@ -468,6 +431,6 @@ public class TelaAbrirManutencao extends JFrame {
     }
 
     public void exibirMensagem(String msg) {
-        JOptionPane.showMessageDialog(this, msg, "MVM", JOptionPane.INFORMATION_MESSAGE);
+        Estilo.dialogo(this, Estilo.VERMELHO, TITULO, msg, "OK");
     }
 }

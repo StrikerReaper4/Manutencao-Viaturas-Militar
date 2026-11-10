@@ -53,12 +53,13 @@ public class PaneDAO {
     }
 
     private Pane montar(ResultSet rs) throws SQLException {
-        long dataLimite = rs.getLong("dataLimite");
+        long lida = rs.getLong("dataLimite");
+        Long dataLimite = rs.wasNull() ? null : lida;
         return new Pane(
                 rs.getInt("idPane"),
                 rs.getString("descricao"),
                 rs.getInt("prioridade"),
-                rs.wasNull() ? null : dataLimite,
+                dataLimite,
                 rs.getString("missao"),
                 rs.getString("situacao"),
                 rs.getString("EB"));
