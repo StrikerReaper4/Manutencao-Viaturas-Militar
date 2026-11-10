@@ -8,12 +8,14 @@ import br.ufms.mvm.modelo.Mecanico;
 import br.ufms.mvm.modelo.Pane;
 import br.ufms.mvm.modelo.Viatura;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
@@ -114,7 +116,14 @@ public class TelaAbrirManutencao extends JFrame {
         raiz.add(Estilo.cabecalho("Abrir Manutenção",
                 "Registro do início do serviço na oficina. Os campos assinalados com (*) são de preenchimento obrigatório."),
                 BorderLayout.NORTH);
-        raiz.add(corpo, BorderLayout.CENTER);
+        // corpo preso no topo e com rolagem, pra ficar bem em tela cheia
+        JPanel topoCorpo = new JPanel(new BorderLayout());
+        topoCorpo.setBackground(corpo.getBackground());
+        topoCorpo.add(corpo, BorderLayout.NORTH);
+        JScrollPane rolagem = new JScrollPane(topoCorpo);
+        rolagem.setBorder(BorderFactory.createEmptyBorder());
+        rolagem.getVerticalScrollBar().setUnitIncrement(16);
+        raiz.add(rolagem, BorderLayout.CENTER);
         JButton btnAbrir = Estilo.botaoPrimario("Abrir manutenção");
         JButton btnCancelar = Estilo.botaoSecundario("Cancelar");
         raiz.add(Estilo.rodape(btnCancelar, btnAbrir), BorderLayout.SOUTH);
