@@ -77,8 +77,9 @@ public class ManutencaoDAO {
                 m = new Manutencao(rs.getString("tipo"), rs.getLong("dataInicio"), rs.getInt("odometroEntrada"));
                 m.setIdManutencao(rs.getInt("idManutencao"));
                 m.setSituacao(rs.getString("situacao"));
-                int idPane = rs.getInt("idPane");
-                m.setChaves(rs.getString("EB"), rs.wasNull() ? null : idPane);
+                int lido = rs.getInt("idPane");
+                Integer idPane = rs.wasNull() ? null : lido;
+                m.setChaves(rs.getString("EB"), idPane);
             }
         }
 
