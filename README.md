@@ -31,6 +31,17 @@ operação `GravarEncerramento`.
 
 Usuários de teste (senha `123456`): `admin` (Operador), `silva`, `souza`, `pereira` (Mecânicos).
 
+## Iteração 4 - Edição de manutenção e consultas operacionais
+
+- **Editar manutenção (RF07):** altera tipo, pane, odômetro de entrada, filtros previstos e mecânicos de uma
+  manutenção em andamento. O Mecânico só edita as que abriu ou em que é responsável e só pode *adicionar*
+  mecânicos; o Operador edita qualquer uma e também remove. Manutenções encerradas não aparecem (RNF14).
+- **Atualizar situação de registro (RF04):** só Operador; inativa/reativa viaturas, itens e usuários com
+  confirmação (RNF10), guardando data e usuário responsável em `TB_HistoricoSituacao`.
+- **Consultar manutenções em andamento (RF10)** e **Consultar manutenções preventivas (RF11):** Operador e
+  Mecânico; a preventiva é sinalizada ao atingir o km limite (5.000 se não informado) ou 6 meses.
+- Bancos antigos são atualizados sozinhos (coluna `idUsuarioAbertura` e dados de `dados_iteracao4.sql`).
+
 ## Estrutura
 
 ```

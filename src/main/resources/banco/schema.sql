@@ -101,3 +101,14 @@ CREATE TABLE IF NOT EXISTS TB_ItemManutencao_Servico (
     faltante      INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (idItemServico, idManutencao)
 );
+
+-- Tabela da iteracao 4 (Atualizar situacao de registro, RF04):
+-- guarda cada inativacao/reativacao com a data e o usuario responsavel
+CREATE TABLE IF NOT EXISTS TB_HistoricoSituacao (
+    idHistorico  INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipoRegistro TEXT NOT NULL,
+    chave        TEXT NOT NULL,
+    ativo        INTEGER NOT NULL,
+    data         INTEGER NOT NULL,
+    idUsuario    INTEGER NOT NULL REFERENCES TB_Usuario(idUsuario)
+);

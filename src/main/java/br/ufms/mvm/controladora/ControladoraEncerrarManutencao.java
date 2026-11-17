@@ -283,6 +283,7 @@ public class ControladoraEncerrarManutencao {
         con.setAutoCommit(false);
         try {
             Manutencao m = new Manutencao(tipo, dataAbertura, odometroEntradaInformado);
+            m.setIdUsuarioAbertura(Sessao.getUsuarioLogado() != null ? Sessao.getUsuarioLogado().getIdUsuario() : null);
             m.associarViatura(v);
             if (p != null) {
                 m.associarPane(p);
