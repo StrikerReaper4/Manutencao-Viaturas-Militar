@@ -20,9 +20,18 @@ public class ViaturaDAO {
 
     // so as ativas, que sao as que podem ser escolhidas (RN04)
     public List<Viatura> listarViatura() throws SQLException {
+        return listar(SELECT_BASE + "WHERE v.ativo = 1 ORDER BY v.EB");
+    }
+
+    // todas, inclusive as inativas, pro cadastro (RF01)
+    public List<Viatura> listarTodas() throws SQLException {
+        return listar(SELECT_BASE + "ORDER BY v.EB");
+    }
+
+    private List<Viatura> listar(String sql) throws SQLException {
         List<Viatura> lista = new ArrayList<>();
         Connection con = Conexao.getConexao();
-        try (PreparedStatement ps = con.prepareStatement(SELECT_BASE + "WHERE v.ativo = 1 ORDER BY v.EB");
+        try (PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 lista.add(montar(rs));
@@ -59,8 +68,8 @@ public class ViaturaDAO {
     }
 
     public void atualizar(Viatura v) throws SQLException {
-        String sql = "UPDATE TB_Viatura SET placa = ?, kmManutencaoPreventiva = ?, odometroAtual = ?, situacao = ?, ativo = ? "
-                   + "WHERE EB = ?";
+        String sql = "UPDATE TB_Viatura SET placa = ?, kmManutencaoPreventiva = ?, odometroAtual = ?, situacao = ?, ativo = ?, "
+                   + "idModelo = ?, idTipoViatura = ? WHERE EB = ?";
         Connection con = Conexao.getConexao();
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, v.getPlaca());
@@ -68,7 +77,30 @@ public class ViaturaDAO {
             ps.setInt(3, v.getOdometro());
             ps.setString(4, v.getSituacao());
             ps.setInt(5, v.isAtivo() ? 1 : 0);
-            ps.setString(6, v.getEb());
+            ps.setObject(6, v.getModelo() != null ? v.getModelo().getIdModelo() : null);
+            ps.setObject(7, v.getTipoViatura() != null ? v.getTipoViatura().getIdTipoViatura() : null);
+            ps.setString(8, v.getEb());
+            ps.executeUpdate();
+        }
+    }
+
+    // RNF12: viatura com pane ou manutencao registrada nao pode ser excluida
+    public boolean possuiVinculo(String eb) throws SQLException {
+        String sql = "SELECT (SELECT COUNT(*) FROM TB_Manutencao WHERE EB = ?) + (SELECT COUNT(*) FROM TB_Pane WHERE EB = ?)";
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, eb);
+            ps.setString(2, eb);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    public void remover(String eb) throws SQLException {
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement("DELETE FROM TB_Viatura WHERE EB = ?")) {
+            ps.setString(1, eb);
             ps.executeUpdate();
         }
     }
