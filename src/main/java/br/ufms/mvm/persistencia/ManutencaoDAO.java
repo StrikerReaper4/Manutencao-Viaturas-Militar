@@ -17,7 +17,7 @@ public class ManutencaoDAO {
     // grava a manutencao e os mecanicos responsaveis, devolve o id gerado
     public int inserir(Manutencao m) throws SQLException {
         String sql = "INSERT INTO TB_Manutencao (tipo, dataInicio, dataEncerramento, odometroEntrada, odometroSaida, "
-                   + "situacao, situacaoFinal, EB, idPane) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                   + "situacao, situacaoFinal, EB, idPane, idUsuarioAbertura) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection con = Conexao.getConexao();
         int id;
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -30,6 +30,7 @@ public class ManutencaoDAO {
             ps.setString(7, m.getSituacaoFinal());
             ps.setString(8, m.getViatura().getEb());
             ps.setObject(9, m.getPane() != null ? m.getPane().getIdPane() : null);
+            ps.setObject(10, m.getIdUsuarioAbertura());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 rs.next();
@@ -64,6 +65,36 @@ public class ManutencaoDAO {
         }
     }
 
+    // RF07: grava o que pode mudar na edicao de uma manutencao em andamento
+    public void atualizarAbertura(Manutencao m) throws SQLException {
+        String sql = "UPDATE TB_Manutencao SET tipo = ?, odometroEntrada = ?, idPane = ? WHERE idManutencao = ?";
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, m.getTipo());
+            ps.setInt(2, m.getOdometroEntrada());
+            ps.setObject(3, m.getIdPane());
+            ps.setInt(4, m.getIdManutencao());
+            ps.executeUpdate();
+        }
+    }
+
+    // RF07: troca a lista de mecanicos responsaveis pela que veio da edicao
+    public void substituirMecanicos(Manutencao m) throws SQLException {
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement("DELETE FROM TB_Manutencao_Mecanico WHERE idManutencao = ?")) {
+            ps.setInt(1, m.getIdManutencao());
+            ps.executeUpdate();
+        }
+        try (PreparedStatement ps = con.prepareStatement(
+                "INSERT INTO TB_Manutencao_Mecanico (idManutencao, idUsuario) VALUES (?, ?)")) {
+            for (Mecanico me : m.getMecanicos()) {
+                ps.setInt(1, m.getIdManutencao());
+                ps.setInt(2, me.getIdUsuario());
+                ps.executeUpdate();
+            }
+        }
+    }
+
     // traz a manutencao com os itens de filtro e os mecanicos; viatura e pane vem so pela chave
     public Manutencao buscarPorID(int id) throws SQLException {
         Connection con = Conexao.getConexao();
@@ -80,6 +111,8 @@ public class ManutencaoDAO {
                 int lido = rs.getInt("idPane");
                 Integer idPane = rs.wasNull() ? null : lido;
                 m.setChaves(rs.getString("EB"), idPane);
+                int abriu = rs.getInt("idUsuarioAbertura");
+                m.setIdUsuarioAbertura(rs.wasNull() ? null : abriu);
             }
         }
 

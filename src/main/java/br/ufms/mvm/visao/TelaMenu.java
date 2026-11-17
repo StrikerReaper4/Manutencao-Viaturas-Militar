@@ -26,6 +26,7 @@ public class TelaMenu extends JFrame {
         JPanel manut = Estilo.secao("Manutenções");
         JPanel botoesManut = grade();
         botoesManut.add(botao("Abrir manutenção", TelaAbrirManutencao::new));
+        botoesManut.add(botao("Editar manutenção", TelaEditarManutencao::new));
         botoesManut.add(botao("Encerrar manutenção", TelaEncerrarManutencao::new));
         if (operador) {
             botoesManut.add(botao("Registrar pane", TelaRegistrarPane::new));
@@ -33,12 +34,20 @@ public class TelaMenu extends JFrame {
         Estilo.empilhar(manut, botoesManut);
         Estilo.empilhar(corpo, manut);
 
+        JPanel cons = Estilo.secao("Consultas");
+        JPanel botoesCons = grade();
+        botoesCons.add(botao("Manutenções em andamento", TelaConsultarEmAndamento::new));
+        botoesCons.add(botao("Manutenções preventivas", TelaConsultarPreventivas::new));
+        Estilo.empilhar(cons, botoesCons);
+        Estilo.empilhar(corpo, cons);
+
         JPanel cad = Estilo.secao("Cadastros");
         JPanel botoesCad = grade();
         botoesCad.add(botao("Gerenciar item", TelaGerenciarItem::new));
         if (operador) {
             botoesCad.add(botao("Gerenciar viatura", TelaGerenciarViatura::new));
             botoesCad.add(botao("Gerenciar usuário", TelaGerenciarUsuario::new));
+            botoesCad.add(botao("Atualizar situação de registro", TelaAtualizarSituacao::new));
         }
         Estilo.empilhar(cad, botoesCad);
         Estilo.empilhar(corpo, cad);

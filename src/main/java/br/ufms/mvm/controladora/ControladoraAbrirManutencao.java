@@ -121,6 +121,7 @@ public class ControladoraAbrirManutencao {
         try {
             // 1.3 a 1.7
             Manutencao m = new Manutencao(tipo, dataAtual, odometro);
+            m.setIdUsuarioAbertura(Sessao.getUsuarioLogado() != null ? Sessao.getUsuarioLogado().getIdUsuario() : null);
             m.associarViatura(v);
             if (p != null) {
                 m.associarPane(p);

@@ -33,6 +33,7 @@ public class Conexao {
     private static void criarBancoSePreciso() throws SQLException {
         boolean novo = !tabelaExiste("TB_Viatura");
         boolean semIteracao2 = !tabelaExiste("TB_Item");
+        boolean semIteracao4 = !tabelaExiste("TB_HistoricoSituacao");
         executarScript("/banco/schema.sql");
         if (novo) {
             executarScript("/banco/dados.sql");
@@ -40,6 +41,22 @@ public class Conexao {
         // assim quem ja tinha o banco da iteracao 1 recebe os dados novos
         if (semIteracao2) {
             executarScript("/banco/dados_iteracao2.sql");
+        }
+        // iteracao 4: quem abriu a manutencao (RF07). ALTER TABLE nao tem IF NOT EXISTS no SQLite
+        if (!colunaExiste("TB_Manutencao", "idUsuarioAbertura")) {
+            try (Statement st = conexao.createStatement()) {
+                st.execute("ALTER TABLE TB_Manutencao ADD COLUMN idUsuarioAbertura INTEGER REFERENCES TB_Usuario(idUsuario)");
+            }
+        }
+        if (semIteracao4) {
+            executarScript("/banco/dados_iteracao4.sql");
+        }
+    }
+
+    private static boolean colunaExiste(String tabela, String coluna) throws SQLException {
+        DatabaseMetaData meta = conexao.getMetaData();
+        try (ResultSet rs = meta.getColumns(null, null, tabela, coluna)) {
+            return rs.next();
         }
     }
 

@@ -32,6 +32,9 @@ public class Manutencao {
     private String eb;
     private Integer idPane;
 
+    // usuario que abriu a manutencao (RF07: o mecanico pode editar as que abriu)
+    private Integer idUsuarioAbertura;
+
     // mensagem 1.3 <<create>> do diagrama de comunicacao
     public Manutencao(String tipo, long dataAtual, int odometro) {
         this.tipo = tipo;
@@ -114,6 +117,29 @@ public class Manutencao {
     public void carregarItem(ItemManutencao imf) {
         imf.setManutencao(this);
         itens.add(imf);
+    }
+
+    // RF07: mudanca feita na edicao de uma manutencao em andamento
+    public void alterarAbertura(String tipo, int odometroEntrada) {
+        this.tipo = tipo;
+        this.odometroEntrada = odometroEntrada;
+    }
+
+    public void removerPane() {
+        this.pane = null;
+        this.idPane = null;
+    }
+
+    public void limparItens() {
+        itens.clear();
+    }
+
+    public Integer getIdUsuarioAbertura() {
+        return idUsuarioAbertura;
+    }
+
+    public void setIdUsuarioAbertura(Integer idUsuarioAbertura) {
+        this.idUsuarioAbertura = idUsuarioAbertura;
     }
 
     public void setChaves(String eb, Integer idPane) {
