@@ -17,4 +17,10 @@ public class Modelo {
     public String getNomeModelo() {
         return nomeModelo;
     }
+
+    // aparece assim nos combos
+    @Override
+    public String toString() {
+        return nomeModelo;
+    }
 }

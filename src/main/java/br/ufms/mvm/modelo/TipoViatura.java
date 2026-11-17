@@ -17,4 +17,10 @@ public class TipoViatura {
     public String getNomeTipo() {
         return nomeTipo;
     }
+
+    // aparece assim nos combos
+    @Override
+    public String toString() {
+        return nomeTipo;
+    }
 }

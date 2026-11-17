@@ -38,6 +38,41 @@ public class PaneDAO {
         return lista;
     }
 
+    // fila de atendimento da oficina: panes ainda nao atendidas de todas as viaturas,
+    // pela prioridade e depois pela data limite (RF09)
+    public List<Pane> listarFilaAtendimento() throws SQLException {
+        List<Pane> lista = new ArrayList<>();
+        String sql = "SELECT * FROM TB_Pane WHERE situacao <> ? ORDER BY prioridade, dataLimite IS NULL, dataLimite";
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, Pane.ATENDIDA);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(montar(rs));
+                }
+            }
+        }
+        return lista;
+    }
+
+    public int inserir(Pane p) throws SQLException {
+        String sql = "INSERT INTO TB_Pane (descricao, prioridade, dataLimite, missao, situacao, EB) VALUES (?, ?, ?, ?, ?, ?)";
+        Connection con = Conexao.getConexao();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, p.getDescricao());
+            ps.setInt(2, p.getPrioridade());
+            ps.setObject(3, p.getDataLimite());
+            ps.setString(4, p.getMissao());
+            ps.setString(5, p.getSituacao());
+            ps.setString(6, p.getEb());
+            ps.executeUpdate();
+        }
+        try (PreparedStatement ps = con.prepareStatement("SELECT last_insert_rowid()");
+             ResultSet rs = ps.executeQuery()) {
+            return rs.getInt(1);
+        }
+    }
+
     public void atualizar(Pane p) throws SQLException {
         String sql = "UPDATE TB_Pane SET descricao = ?, prioridade = ?, dataLimite = ?, missao = ?, situacao = ? WHERE idPane = ?";
         Connection con = Conexao.getConexao();

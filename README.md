@@ -20,6 +20,17 @@ Implementação do caso de uso **Encerrar manutenção**, incluindo o registro d
 sem abertura prévia, seguindo o Diagrama de Classes consolidado e o Diagrama de Comunicação da
 operação `GravarEncerramento`.
 
+## Iteração 3 - Autenticação e cadastros de apoio
+
+- **Autenticar usuário (RF05):** o sistema abre na tela de login; o menu mostra só o que a classe do
+  usuário pode fazer. Senhas guardadas em SHA-256 (RNF06).
+- **Gerenciar viatura (RF01)** e **Gerenciar usuário (RF02):** só Operador.
+- **Gerenciar item (RF03):** Operador e Mecânico.
+- **Registrar pane (RF09):** só Operador; mostra a fila de atendimento por prioridade.
+- Remoção só de registros sem vínculo (RNF12/RNF13).
+
+Usuários de teste (senha `123456`): `admin` (Operador), `silva`, `souza`, `pereira` (Mecânicos).
+
 ## Estrutura
 
 ```
