@@ -112,3 +112,11 @@ CREATE TABLE IF NOT EXISTS TB_HistoricoSituacao (
     data         INTEGER NOT NULL,
     idUsuario    INTEGER NOT NULL REFERENCES TB_Usuario(idUsuario)
 );
+
+-- Tabela da iteracao 5 (RF12): pecas necessarias indicadas no registro da pane
+CREATE TABLE IF NOT EXISTS TB_Pane_Item (
+    idPane     INTEGER NOT NULL REFERENCES TB_Pane(idPane),
+    idItem     INTEGER NOT NULL REFERENCES TB_Item(idItem),
+    quantidade INTEGER NOT NULL,
+    PRIMARY KEY (idPane, idItem)
+);

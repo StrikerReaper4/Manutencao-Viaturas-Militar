@@ -56,8 +56,10 @@ public abstract class TelaConsulta extends JFrame {
         Estilo.empilhar(corpo, resultado);
 
         JButton fechar = Estilo.botaoSecundario("Fechar");
+        JButton imprimir = Estilo.botaoSecundario("Imprimir");
         JButton atualizar = Estilo.botaoPrimario("Consultar");
         fechar.addActionListener(e -> dispose());
+        imprimir.addActionListener(e -> imprimir());
         atualizar.addActionListener(e -> consultar());
 
         JPanel topoCorpo = new JPanel(new BorderLayout());
@@ -68,7 +70,7 @@ public abstract class TelaConsulta extends JFrame {
         JPanel raiz = new JPanel(new BorderLayout());
         raiz.add(Estilo.cabecalho(titulo, subtitulo), BorderLayout.NORTH);
         raiz.add(rolagem, BorderLayout.CENTER);
-        raiz.add(Estilo.rodape(fechar, atualizar), BorderLayout.SOUTH);
+        raiz.add(Estilo.rodape(fechar, imprimir, atualizar), BorderLayout.SOUTH);
         setContentPane(raiz);
     }
 
@@ -92,6 +94,21 @@ public abstract class TelaConsulta extends JFrame {
         } catch (SQLException e) {
             Estilo.dialogo(this, Estilo.VERMELHO, titulo, "Erro ao consultar o banco de dados: " + e.getMessage(), "OK");
         }
+    }
+
+    // usa a janela de impressao do sistema (da pra salvar em PDF por ela)
+    private void imprimir() {
+        try {
+            tabela.print(JTable.PrintMode.FIT_WIDTH, new java.text.MessageFormat("MVM - " + titulo + cabecalhoImpressao()),
+                    new java.text.MessageFormat("Página {0}"));
+        } catch (java.awt.print.PrinterException e) {
+            Estilo.dialogo(this, Estilo.VERMELHO, titulo, "Não foi possível imprimir: " + e.getMessage(), "OK");
+        }
+    }
+
+    // texto extra no topo da impressao (ex.: periodo do relatorio)
+    protected String cabecalhoImpressao() {
+        return "";
     }
 
     protected String resumo(int total) {

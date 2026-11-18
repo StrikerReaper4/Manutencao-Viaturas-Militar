@@ -42,6 +42,18 @@ Usuários de teste (senha `123456`): `admin` (Operador), `silva`, `souza`, `pere
   Mecânico; a preventiva é sinalizada ao atingir o km limite (5.000 se não informado) ou 6 meses.
 - Bancos antigos são atualizados sozinhos (coluna `idUsuarioAbertura` e dados de `dados_iteracao4.sql`).
 
+## Iteração 5 - Consultas complementares e relatórios
+
+- **Registrar pane** agora aceita as peças necessárias (`TB_Pane_Item`).
+- **Consultar viaturas aguardando peças (RF12):** junta as peças das panes ainda não atendidas com os
+  materiais e o serviço que faltaram na última manutenção encerrada de cada viatura.
+- **Emitir relatório de itens utilizados (RF13):** por período (padrão: hoje) e nome do item, sem diferenciar
+  maiúsculas nem acentos.
+- **Emitir relatório mensal (RF14):** manutenções iniciadas ou encerradas no mês; o que não foi preenchido
+  sai em branco, inclusive a coluna de valor, para preencher na folha impressa.
+- Consultas e relatórios têm botão **Imprimir** (dá para salvar em PDF pela janela de impressão).
+- Consulta de peças e relatórios são privativos do Operador.
+
 ## Estrutura
 
 ```
