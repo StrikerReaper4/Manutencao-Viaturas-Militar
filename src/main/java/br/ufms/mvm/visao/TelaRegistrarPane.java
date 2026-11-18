@@ -2,13 +2,17 @@ package br.ufms.mvm.visao;
 
 import br.ufms.mvm.controladora.ControladoraRegistrarPane;
 import br.ufms.mvm.controladora.MensagensCadastro;
+import br.ufms.mvm.modelo.Item;
+import br.ufms.mvm.modelo.ItemManutencao_Material;
 import br.ufms.mvm.modelo.Pane;
 import br.ufms.mvm.modelo.Viatura;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -35,6 +39,10 @@ public class TelaRegistrarPane extends JFrame {
             "1 - Urgente", "2 - Alta", "3 - Média", "4 - Baixa", "5 - Rotina"});
     private final JTextField txtDataLimite = new JTextField();
     private final JTextField txtMissao = new JTextField();
+    private final JComboBox<Item> cbItem = new JComboBox<>();
+    private final JTextField txtQuantidade = new JTextField(6);
+    private final DefaultListModel<String> modeloPecas = new DefaultListModel<>();
+    private final JList<String> listaPecas = new JList<>(modeloPecas);
     private final DefaultTableModel modeloFila = new DefaultTableModel(
             new String[]{"Nº", "EB", "Descrição", "Prioridade", "Data limite", "Missão", "Situação"}, 0) {
         private static final long serialVersionUID = 1L;
@@ -57,17 +65,38 @@ public class TelaRegistrarPane extends JFrame {
         Estilo.empilhar(dados, Estilo.campo("Descrição da pane", true, txtDescricao));
         Estilo.empilhar(dados, Estilo.campo("Missão associada", false, txtMissao));
 
+        // RF12: pecas necessarias, entram na consulta de viaturas aguardando pecas
+        JPanel pecas = Estilo.secao("Peças necessárias (opcional)");
+        JButton adicionar = Estilo.botaoSecundario("Adicionar");
+        JButton remover = Estilo.botaoSecundario("Remover selecionada");
+        adicionar.addActionListener(e -> adicionarPeca());
+        remover.addActionListener(e -> removerPeca());
+        JPanel lateral = new JPanel(new BorderLayout());
+        lateral.setOpaque(false);
+        lateral.add(adicionar, BorderLayout.SOUTH);
+        Estilo.empilhar(pecas, Estilo.linhaComLateral(Estilo.linha(
+                Estilo.campo("Item", false, cbItem),
+                Estilo.campo("Quantidade", false, txtQuantidade)), lateral));
+        JScrollPane rolagemPecas = new JScrollPane(listaPecas);
+        rolagemPecas.setPreferredSize(new Dimension(400, 70));
+        Estilo.empilhar(pecas, rolagemPecas);
+        JPanel acoes = new JPanel(new BorderLayout());
+        acoes.setOpaque(false);
+        acoes.add(remover, BorderLayout.WEST);
+        Estilo.empilhar(pecas, acoes);
+
         JTable tabela = new JTable(modeloFila);
         tabela.setRowHeight(24);
         tabela.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         JScrollPane rolagemTabela = new JScrollPane(tabela);
-        rolagemTabela.setPreferredSize(new Dimension(900, 240));
+        rolagemTabela.setPreferredSize(new Dimension(900, 220));
         JPanel fila = Estilo.secao("Fila de atendimento da oficina (por prioridade)");
         Estilo.empilhar(fila, rolagemTabela);
 
         JPanel corpo = Estilo.corpo();
         Estilo.empilhar(corpo, dados);
+        Estilo.empilhar(corpo, pecas);
         Estilo.empilhar(corpo, fila);
 
         JButton fechar = Estilo.botaoSecundario("Fechar");
@@ -98,6 +127,9 @@ public class TelaRegistrarPane extends JFrame {
             cbViatura.removeAllItems();
             controladora.consultarViaturasAtivas().forEach(cbViatura::addItem);
             cbViatura.setSelectedIndex(-1);
+            cbItem.removeAllItems();
+            controladora.consultarItensAtivos().forEach(cbItem::addItem);
+            cbItem.setSelectedIndex(-1);
             SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
             modeloFila.setRowCount(0);
             for (Pane p : controladora.listarFilaAtendimento()) {
@@ -111,7 +143,43 @@ public class TelaRegistrarPane extends JFrame {
         txtDescricao.setText("");
         txtDataLimite.setText("");
         txtMissao.setText("");
+        txtQuantidade.setText("");
         cbPrioridade.setSelectedIndex(2);
+        atualizarPecas();
+    }
+
+    private void atualizarPecas() {
+        modeloPecas.clear();
+        for (ItemManutencao_Material p : controladora.getPecas()) {
+            modeloPecas.addElement(p.getQuantidade() + " x " + p.getItem());
+        }
+    }
+
+    private void adicionarPeca() {
+        Item it = (Item) cbItem.getSelectedItem();
+        if (it == null) {
+            erro(MensagensCadastro.obrigatorio("Item"));
+            return;
+        }
+        try {
+            controladora.incluirPeca(it.getIdItem(), txtQuantidade.getText());
+            txtQuantidade.setText("");
+            atualizarPecas();
+        } catch (IllegalArgumentException e) {
+            erro(e.getMessage());
+        } catch (SQLException e) {
+            erro("Erro ao consultar o banco de dados: " + e.getMessage());
+        }
+    }
+
+    private void removerPeca() {
+        int i = listaPecas.getSelectedIndex();
+        if (i < 0) {
+            erro(MensagensCadastro.SELECIONE);
+            return;
+        }
+        controladora.removerPeca(controladora.getPecas().get(i).getItem().getIdItem());
+        atualizarPecas();
     }
 
     private void registrar() {

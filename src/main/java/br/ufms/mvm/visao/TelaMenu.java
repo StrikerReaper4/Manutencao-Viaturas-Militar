@@ -38,8 +38,21 @@ public class TelaMenu extends JFrame {
         JPanel botoesCons = grade();
         botoesCons.add(botao("Manutenções em andamento", TelaConsultarEmAndamento::new));
         botoesCons.add(botao("Manutenções preventivas", TelaConsultarPreventivas::new));
+        if (operador) {
+            botoesCons.add(botao("Viaturas aguardando peças", TelaConsultarAguardandoPecas::new));
+        }
         Estilo.empilhar(cons, botoesCons);
         Estilo.empilhar(corpo, cons);
+
+        // relatorios sao privativos do Operador (RF13 e RF14)
+        if (operador) {
+            JPanel rel = Estilo.secao("Relatórios");
+            JPanel botoesRel = grade();
+            botoesRel.add(botao("Itens utilizados", TelaRelatorioItens::new));
+            botoesRel.add(botao("Relatório mensal", TelaRelatorioMensal::new));
+            Estilo.empilhar(rel, botoesRel);
+            Estilo.empilhar(corpo, rel);
+        }
 
         JPanel cad = Estilo.secao("Cadastros");
         JPanel botoesCad = grade();

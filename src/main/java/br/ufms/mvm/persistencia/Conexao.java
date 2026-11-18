@@ -34,6 +34,7 @@ public class Conexao {
         boolean novo = !tabelaExiste("TB_Viatura");
         boolean semIteracao2 = !tabelaExiste("TB_Item");
         boolean semIteracao4 = !tabelaExiste("TB_HistoricoSituacao");
+        boolean semIteracao5 = !tabelaExiste("TB_Pane_Item");
         executarScript("/banco/schema.sql");
         if (novo) {
             executarScript("/banco/dados.sql");
@@ -50,6 +51,9 @@ public class Conexao {
         }
         if (semIteracao4) {
             executarScript("/banco/dados_iteracao4.sql");
+        }
+        if (semIteracao5) {
+            executarScript("/banco/dados_iteracao5.sql");
         }
     }
 
