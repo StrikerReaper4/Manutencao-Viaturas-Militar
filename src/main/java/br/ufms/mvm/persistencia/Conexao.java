@@ -3,6 +3,9 @@ package br.ufms.mvm.persistencia;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -13,15 +16,38 @@ import java.sql.Statement;
 // Uma conexao so pra aplicacao inteira, assim todos os DAOs ficam na mesma transacao
 public class Conexao {
 
-    private static final String URL = "jdbc:sqlite:mvm.db";
     private static Connection conexao;
 
     private Conexao() {
     }
 
+    // Onde fica o arquivo do banco. Cada usuario do Windows tem o seu, em
+    // %APPDATA%\MVM\mvm.db (ex.: C:\Users\fulano\AppData\Roaming\MVM\mvm.db), assim:
+    //  - o programa pode ficar em qualquer pasta, ate em Program Files (que nao aceita gravacao);
+    //  - dois usuarios no mesmo PC nao misturam dados;
+    //  - instalar uma versao nova do programa nao apaga o banco.
+    // Pra testar com outro arquivo: java -Dmvm.banco=C:\caminho\teste.db ...
+    public static Path caminhoBanco() {
+        String informado = System.getProperty("mvm.banco");
+        if (informado != null && !informado.isBlank()) {
+            return Paths.get(informado);
+        }
+        String appData = System.getenv("APPDATA");
+        Path pasta = appData != null ? Paths.get(appData, "MVM") : Paths.get(System.getProperty("user.home"), ".mvm");
+        return pasta.resolve("mvm.db");
+    }
+
     public static Connection getConexao() throws SQLException {
         if (conexao == null || conexao.isClosed()) {
-            conexao = DriverManager.getConnection(URL);
+            Path banco = caminhoBanco();
+            try {
+                if (banco.getParent() != null) {
+                    Files.createDirectories(banco.getParent());
+                }
+            } catch (IOException e) {
+                throw new SQLException("Não foi possível criar a pasta do banco: " + banco.getParent(), e);
+            }
+            conexao = DriverManager.getConnection("jdbc:sqlite:" + banco.toAbsolutePath());
             try (Statement st = conexao.createStatement()) {
                 st.execute("PRAGMA foreign_keys = ON");
             }

@@ -78,7 +78,25 @@ Ou pelo terminal:
 mvn compile exec:java
 ```
 
-O arquivo `mvm.db` é criado na primeira execução, já com alguns dados de teste.
+O banco é criado na primeira execução, já com alguns dados de teste, em `%APPDATA%\MVM\mvm.db`
+(ex.: `C:\Users\fulano\AppData\Roaming\MVM\mvm.db`). Cada usuário do Windows tem o seu.
+Para começar do zero, apague esse arquivo. Para usar outro arquivo: `-Dmvm.banco=C:\caminho\teste.db`.
+
+## Gerar o executável (Windows)
+
+Precisa só do JDK 17+ (não precisa de Maven). Na pasta do projeto:
+
+```
+powershell -ExecutionPolicy Bypass -File .\gerar-exe.ps1
+```
+
+Gera `dist\MVM\MVM.exe` (com o Java embutido, o usuário não precisa instalar nada) e `dist\MVM-<versão>.zip`.
+O script também testa o executável gerado (`MVM.exe --verificar`) antes de zipar.
+
+- **Distribuir:** mande o zip; o usuário extrai e abre o `MVM.exe` (a pasta inteira vai junto, não só o .exe).
+- **Atualizar:** mude a `<version>` no `pom.xml`, rode o script de novo e mande o zip novo. O usuário
+  substitui a pasta MVM; o banco fica no AppData, então os dados dele continuam lá e as tabelas novas
+  são criadas sozinhas na próxima abertura.
 
 ## Branches
 
